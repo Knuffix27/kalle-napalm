@@ -2,6 +2,16 @@
 
 Ein universales Python-Skript zum automatischen Sammeln von Netzwerk-Gerätinformationen mittels **Napalm** und Schreiben in **Netbox**.
 
+## 🟢 What's New - Aktuelle Updates
+
+✅ **Aruba AOS Support** - Aruba-Switches und CX-Serie jetzt unterstützt (`aruba_aos`)
+✅ **Cisco Erweiterung** - IOS-XR und NX-OS Varianten hinzugefügt
+✅ **Tape Libraries** - Fujitsu, IBM, Quantum, Spectra Support mit `device_type: "tape_library"`
+✅ **Hardware Server Management** - Oracle ILOM, Dell iDRAC, HPE iLO Integration
+✅ **Verbesserte Kategorisierung** - Neue `device_type` Parameter für bessere Netbox-Organisation
+
+**Siehe:** [Spezielle Gerätetypen](#spezielle-gerätetypen) für Konfigurationsbeispiele
+
 ## Features
 
 ✅ **Universal Support** - Unterstützt alle Napalm-kompatiblen Hersteller (Cisco, Juniper, Arista, Aruba, etc.)
