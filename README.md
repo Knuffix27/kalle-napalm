@@ -4,7 +4,9 @@ Ein universales Python-Skript zum automatischen Sammeln von Netzwerk-Gerätinfor
 
 ## Features
 
-✅ **Universal Support** - Unterstützt alle Napalm-kompatiblen Hersteller (Cisco, Juniper, Arista, etc.)
+✅ **Universal Support** - Unterstützt alle Napalm-kompatiblen Hersteller (Cisco, Juniper, Arista, Aruba, etc.)
+✅ **Tape Libraries & Storage** - Support für Tape-Bibliotheken und Storage-Systeme
+✅ **Hardware Server Management** - ILOM (Oracle), iDRAC (Dell), iLO (HPE) Support
 ✅ **IP-Range Support** - Automatische Expansion von CIDR-Ranges (z.B. 10.0.0.0/24)
 ✅ **Flexible Credentials** - SSH-Keys oder Passwörter, Umgebungsvariablen-Support
 ✅ **Rich Data Collection** - Facts, Interfaces, Config-Backups, BGP-Daten
@@ -159,14 +161,34 @@ grep "2024-03-03" napalm_collector.log
 
 Alle Napalm-kompatiblen Treiber sind unterstützt:
 
+### Netzwerk-Geräte
+
 | Hersteller | Treiber | Notizen |
 |-----------|--------|---------|
 | Cisco | `cisco_ios`, `cisco_nxos`, `cisco_iosxr` | IOS, NX-OS, IOS-XR |
 | Juniper | `junos` | Junos OS |
-| Arista | `eos` | Extremelyunst Linux-basiert |
+| Arista | `eos` | EOS (Extremelyunst Linux-basiert) |
+| Aruba | `aruba_aos` | AOS, CX-Serie |
 | Palo Alto Networks | `paloaltonetworks` | Firewalls |
 | Fortinet | `fortios` | FortiGate Firewalls |
 | Vyos | `vyos` | Open-Source Router |
+
+### Tape Libraries & Storage
+
+| Hersteller | Treiber | Gerättyp |
+|-----------|--------|---------|
+| Fujitsu | `fujitsu` | `tape_library` |
+| IBM | `ibm` | `tape_library` |
+| Quantum | `quantum` | `tape_library` |
+| Spectra/Seagate | `spectra` | `tape_library` |
+
+### Hardware Server Management
+
+| Hersteller | Gerättyp | Interface | Notizen |
+|-----------|---------|-----------|---------|
+| Oracle/Sun | `server_ilom` | ILOM | Integrated Lights-Out Management |
+| Dell | `server_idrac` | iDRAC | Dell Remote Access Controller |
+| HPE | `server_ilo` | iLO | HP Integrated Lights-Out |
 
 **Siehe:** [Napalm Support Matrix](https://napalm.readthedocs.io/en/latest/support_matrix.html)
 
@@ -185,6 +207,67 @@ devices:
 ```
 
 **Hinweis:** Auto-detection nutzt ein Fallback auf generischen Driver. Explizite Angabe ist zuverlässiger.
+
+## Spezielle Gerätetypen
+
+### Tape Libraries
+
+Tape-Bibliotheken können mit dem Parameter `device_type: "tape_library"` konfiguriert werden:
+
+```yaml
+devices:
+  - name: "Tape-Library-Backend"
+    host: "10.60.1.1"
+    manufacturer: "fujitsu"  # oder ibm, quantum, spectra
+    device_type: "tape_library"  # Optionaler Marker
+    credentials:
+      username: "admin"
+      password: "lib_password"
+    timeout: 60
+```
+
+### Hardware Server Management Interfaces
+
+#### Oracle/Sun ILOM
+```yaml
+devices:
+  - name: "Oracle-Server-01"
+    host: "10.70.1.1"
+    manufacturer: "oracle"
+    device_type: "server_ilom"  # ILOM Management Port
+    credentials:
+      username: "root"
+      password: "ilom_password"
+    timeout: 30
+```
+
+#### Dell iDRAC
+```yaml
+devices:
+  - name: "Dell-Server-01"
+    host: "10.80.1.1"
+    manufacturer: "dell"
+    device_type: "server_idrac"  # iDRAC Management Port
+    credentials:
+      username: "root"
+      password: "idrac_password"
+    timeout: 30
+```
+
+#### HPE iLO
+```yaml
+devices:
+  - name: "HPE-Server-01"
+    host: "10.90.1.1"
+    manufacturer: "hpe"
+    device_type: "server_ilo"  # iLO Management Port
+    credentials:
+      username: "Administrator"
+      password: "ilo_password"
+    timeout: 30
+```
+
+Die `device_type` Parameter ermöglichen eine bessere Kategorisierung in Netbox und helfen bei der Verwaltung gemischter Infrastrukturen (Netzwerk + Storage + Server).
 
 ## Credentials-Optionen
 

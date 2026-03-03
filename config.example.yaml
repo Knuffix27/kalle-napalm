@@ -97,6 +97,73 @@ devices:
       ssh_key: "/etc/ssh/network_admin_key"
     timeout: 30
 
+  # ========== Example 6: Aruba AOS Switches ==========
+  - name: "Aruba-Core-Switch"
+    host: "10.30.1.1"
+    manufacturer: "aruba_aos"  # Aruba AOS (including CX series)
+    credentials:
+      username: "admin"
+      password: "secure_password"
+    timeout: 30
+
+  # ========== Example 7: Cisco IOS-XR Routers ==========
+  - name: "Cisco-XR-Router"
+    host: "10.40.1.1"
+    manufacturer: "iosxr"  # Cisco IOS-XR
+    credentials:
+      username: "operator"
+      ssh_key: "/etc/ssh/network_admin_key"
+    timeout: 45
+
+  # ========== Example 8: Cisco NX-OS Switches ==========
+  - name: "Cisco-NX-Switch"
+    host: "10.50.1.1"
+    manufacturer: "nxos"  # Cisco NX-OS
+    credentials:
+      username: "admin"
+      password: "admin123"
+    timeout: 30
+
+  # ========== Example 9: Tape Libraries ==========
+  - name: "Tape-Library-Backend"
+    host: "10.60.1.1"
+    manufacturer: "fujitsu"  # or ibm, quantum, spectra, etc.
+    device_type: "tape_library"  # Special marker for tape libraries
+    credentials:
+      username: "admin"
+      password: "lib_password"
+    timeout: 60
+
+  # ========== Example 10: Hardware Server - ILOM (Oracle/Sun) ==========
+  - name: "Oracle-Server-01"
+    host: "10.70.1.1"
+    manufacturer: "oracle"
+    device_type: "server_ilom"  # ILOM Management Port
+    credentials:
+      username: "root"
+      password: "ilom_password"
+    timeout: 30
+
+  # ========== Example 11: Hardware Server - iDRAC (Dell) ==========
+  - name: "Dell-Server-01"
+    host: "10.80.1.1"
+    manufacturer: "dell"
+    device_type: "server_idrac"  # Dell Remote Access Controller
+    credentials:
+      username: "root"
+      password: "idrac_password"
+    timeout: 30
+
+  # ========== Example 12: Hardware Server - iLO (HPE) ==========
+  - name: "HPE-Server-01"
+    host: "10.90.1.1"
+    manufacturer: "hpe"
+    device_type: "server_ilo"  # HP Integrated Lights-Out
+    credentials:
+      username: "Administrator"
+      password: "ilo_password"
+    timeout: 30
+
 
 # --- Logging Configuration ---
 logging:
@@ -142,17 +209,43 @@ logging:
 # 6. Use separate read-only accounts for monitoring
 #
 # ============================================================================
-# Supported Manufacturers
+# Supported Manufacturers & Device Types
 # ============================================================================
-# ciscoios      - Cisco IOS (including IOS-XE)
-# nxos          - Cisco NX-OS
-# iosxr         - Cisco IOS-XR
-# junos         - Juniper Junos
-# eos           - Arista EOS
-# vyos          - VyOS
-# fortios       - Fortinet FortiOS
-# paloaltonetworks - Palo Alto Networks
+#
+# NETWORK DEVICES (supported by Napalm):
+# ----------------------------------------
+# ciscoios              - Cisco IOS (including IOS-XE)
+# nxos                  - Cisco NX-OS
+# iosxr                 - Cisco IOS-XR
+# aruba_aos             - Aruba AOS (CX, 5400, etc.)
+# junos                 - Juniper Junos
+# eos                   - Arista EOS
+# vyos                  - VyOS
+# fortios               - Fortinet FortiOS
+# paloaltonetworks      - Palo Alto Networks
 # and many more... (see: https://napalm.readthedocs.io/en/latest/support_matrix.html)
+#
+# TAPE LIBRARIES (Storage):
+# -------------------------
+# fujitsu               - Fujitsu Storage Devices
+# ibm                   - IBM Storage/Tape Systems
+# quantum               - Quantum Tape Libraries
+# spectra               - Spectra/Seagate
+# (device_type: "tape_library")
+#
+# HARDWARE SERVERS (Management Interfaces):
+# ------------------------------------------
+# oracle                - Oracle/Sun Systems (device_type: "server_ilom")
+# dell                  - Dell Systems (device_type: "server_idrac")
+# hpe                   - HPE Systems (device_type: "server_ilo")
+#
+# SPECIAL PARAMETERS:
+# -------------------
+# device_type: Optionales Feld zur Kategorisierung:
+#   - tape_library     : Tape-Bibliotheken
+#   - server_ilom      : Oracle ILOM Management Port
+#   - server_idrac     : Dell iDRAC Management Port
+#   - server_ilo       : HPE iLO Management Port
 #
 # Use "auto" for auto-detection if device type is uncertain
 # ============================================================================

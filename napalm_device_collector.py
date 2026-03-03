@@ -256,6 +256,7 @@ class NapalmCollector:
             'host': device_cfg['host'],
             'name': device_cfg.get('name', device_cfg['host']),
             'manufacturer': device_cfg.get('manufacturer', 'unknown'),
+            'device_type': device_cfg.get('device_type', ''),  # Special device type marker
             'collected_at': datetime.now().isoformat()
         }
 
@@ -311,7 +312,7 @@ class NetboxWriter:
 
         device_data = {
             'name': collected_data['name'],
-            'device_type': self._get_or_create_device_type(facts),
+            'device_type': self._get_or_create_device_type(facts, collected_data),
             'site': self._get_or_create_site(facts),
             'manufacturer': self._get_or_create_manufacturer(facts),
             'serial': facts.get('serial_number', ''),
@@ -377,9 +378,33 @@ class NetboxWriter:
             self.logger.debug(f"Could not get/create default site: {e}")
             return None
 
-    def _get_or_create_device_type(self, facts: Dict[str, Any]) -> Optional[int]:
-        """Get device type or create generic one"""
+    def _get_or_create_device_type(self, facts: Dict[str, Any], collected_data: Dict[str, Any] = None) -> Optional[int]:
+        """Get device type or create generic one
+
+        Supports special device types:
+        - tape_library: Tape libraries and storage devices
+        - server_ilom: Oracle/Sun ILOM management interface
+        - server_idrac: Dell iDRAC management interface
+        - server_ilo: HPE iLO management interface
+        """
+        collected_data = collected_data or {}
+        device_type_hint = collected_data.get('device_type', '').lower()
         model = facts.get('model', 'Unknown')
+
+        # Map device type hint to model information
+        if device_type_hint == 'tape_library':
+            model = f"Tape Library - {model}"
+            self.logger.debug(f"Device identified as Tape Library: {model}")
+        elif device_type_hint == 'server_ilom':
+            model = f"Oracle ILOM - {model}"
+            self.logger.debug(f"Device identified as Oracle ILOM: {model}")
+        elif device_type_hint == 'server_idrac':
+            model = f"Dell iDRAC - {model}"
+            self.logger.debug(f"Device identified as Dell iDRAC: {model}")
+        elif device_type_hint == 'server_ilo':
+            model = f"HPE iLO - {model}"
+            self.logger.debug(f"Device identified as HPE iLO: {model}")
+
         try:
             dtype = self.api.dcim.device_types.get(model=model)
             if dtype:
