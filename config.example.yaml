@@ -1,0 +1,158 @@
+# ============================================================================
+# Napalm Network Device Collector - Configuration File
+# ============================================================================
+# This file defines which devices to collect information from and their
+# credentials, as well as Netbox connectivity details.
+#
+# SECURITY WARNING: This file contains credentials!
+# Add config.yaml to .gitignore and protect with file permissions
+# Better: Use SSH keys instead of passwords, and Netbox token as ENV var
+# ============================================================================
+
+# --- Netbox Configuration ---
+# API access for writing collected device information
+netbox:
+  # Netbox API URL (can also be set via NETBOX_URL env var)
+  url: "https://netbox.example.com"
+
+  # API Token (can also be set via NETBOX_TOKEN env var)
+  # Using env var recommended for security: export NETBOX_TOKEN="abc123xyz"
+  api_token: "0123456789abcdefghijklmnop"
+
+  # SSL certificate verification
+  ssl_verify: true
+
+
+# --- Napalm Collection Configuration ---
+napalm:
+  # Which information to collect from devices
+  commands:
+    - facts          # Device facts (vendor, model, serial, OS version, etc.)
+    - interfaces     # Interface information (names, IPs, status, MTU, etc.)
+    - config         # Running configuration backup
+    - bgp            # BGP neighbor information
+
+  # Automatic retry attempts on failure
+  retry_count: 2
+
+  # Connection timeout in seconds (per device)
+  timeout: 30
+
+
+# --- Devices to Monitor ---
+# Define individual devices and/or IP ranges to collect from
+devices:
+
+  # ========== Example 1: Single Device ==========
+  - name: "Router-Core-1"
+    host: "192.168.1.1"
+    # Napalm driver: cisco_ios, cisco_nxos, junos, eos, etc.
+    # Use "auto" for automatic detection
+    manufacturer: "cisco_ios"
+    credentials:
+      username: "admin"
+      # Option A: Use password (less secure)
+      password: "admin123"
+      # Option B: Use SSH key (recommended)
+      # ssh_key: "/home/user/.ssh/id_rsa"
+    timeout: 30
+
+  # ========== Example 2: IP Range with CIDR Notation ==========
+  # All IPs in the range will be processed separately
+  - name: "Access-Switches"
+    host_range: "192.168.10.0/24"  # Expands to 192.168.10.1 - 192.168.10.254
+    manufacturer: "cisco_ios"
+    credentials:
+      username: "netadmin"
+      ssh_key: "/home/user/.ssh/network_key"
+      # SSH key can use SSH agent: just specify ssh_key path
+    timeout: 60
+
+  # ========== Example 3: Juniper Device with Secret ==========
+  - name: "Router-Hubsite"
+    host: "10.5.5.1"
+    manufacturer: "junos"
+    credentials:
+      username: "operator"
+      password: "readonly_pass"
+      # For enable/secret passwords (Juniper srp)
+      secret: "enable_password"
+    timeout: 45
+
+  # ========== Example 4: Arista EOS Devices ==========
+  - name: "Leaf-Switches"
+    host_range: "10.10.0.0/25"
+    manufacturer: "eos"
+    credentials:
+      username: "arista_user"
+      password: "secure_password"
+    timeout: 30
+
+  # ========== Example 5: Auto-detection ==========
+  - name: "Mystery-Device"
+    host: "10.20.1.1"
+    manufacturer: "auto"  # Try to auto-detect the device type
+    credentials:
+      username: "admin"
+      ssh_key: "/etc/ssh/network_admin_key"
+    timeout: 30
+
+
+# --- Logging Configuration ---
+logging:
+  # Log level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: "INFO"
+
+  # Log file path
+  file: "napalm_collector.log"
+
+
+# ============================================================================
+# Usage Examples
+# ============================================================================
+#
+# 1. Basic run with this config:
+#    python napalm_device_collector.py --config config.yaml
+#
+# 2. Verbose mode for debugging:
+#    python napalm_device_collector.py --config config.yaml --verbose
+#
+# 3. Dry-run (show what would be done):
+#    python napalm_device_collector.py --config config.yaml --dry-run
+#
+# 4. With environment variables for Netbox (recommended):
+#    export NETBOX_URL="https://netbox.example.com"
+#    export NETBOX_TOKEN="your_api_token"
+#    python napalm_device_collector.py --config config.yaml
+#
+# 5. Run multiple config files sequentially:
+#    for config in sites/*.yaml; do
+#        python napalm_device_collector.py --config $config
+#    done
+#
+# ============================================================================
+# Credential Security Best Practices
+# ============================================================================
+#
+# 1. Use SSH public key authentication (ssh_key) instead of passwords
+# 2. Protect config.yaml with: chmod 600 config.yaml
+# 3. Use Netbox token via environment variable, not in config file
+# 4. Use a configuration management tool (Ansible, etc.) to deploy configs
+# 5. Rotate credentials regularly
+# 6. Use separate read-only accounts for monitoring
+#
+# ============================================================================
+# Supported Manufacturers
+# ============================================================================
+# ciscoios      - Cisco IOS (including IOS-XE)
+# nxos          - Cisco NX-OS
+# iosxr         - Cisco IOS-XR
+# junos         - Juniper Junos
+# eos           - Arista EOS
+# vyos          - VyOS
+# fortios       - Fortinet FortiOS
+# paloaltonetworks - Palo Alto Networks
+# and many more... (see: https://napalm.readthedocs.io/en/latest/support_matrix.html)
+#
+# Use "auto" for auto-detection if device type is uncertain
+# ============================================================================

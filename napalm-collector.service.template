@@ -1,0 +1,41 @@
+[Unit]
+Description=Kalle Napalm Network Device Collector
+Documentation=https://github.com/your-org/kalle-napalm
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=napalm
+Group=napalm
+WorkingDirectory=/opt/kalle-napalm
+
+# Environment variables
+Environment="NETBOX_URL=https://netbox.example.com"
+Environment="NETBOX_TOKEN=your_token_here"
+EnvironmentFile=-/opt/kalle-napalm/.env
+
+# Execution
+ExecStart=/opt/kalle-napalm/run.sh --mode cron --config /opt/kalle-napalm/config.yaml
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/kalle-napalm
+
+# Restart on failure
+Restart=on-failure
+RestartSec=300
+
+# Timeout
+TimeoutStartSec=600
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=napalm-collector
+
+[Install]
+WantedBy=multi-user.target
